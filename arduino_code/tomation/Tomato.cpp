@@ -8,12 +8,16 @@ void Tomato::signal_ready() {
     out("~");
 }
 
-void Tomato::present() {
+void Tomato::present(String username) {
     out("< present");
 }
 
 void Tomato::absent() {
     out("< absent");
+}
+
+void Tomato::abort_tomato() {
+    out("< abort_tomato");
 }
 
 

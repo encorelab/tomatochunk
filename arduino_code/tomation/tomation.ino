@@ -30,12 +30,12 @@
 
 #define SERIAL_BAUDRATE 9600
 
-
 #define IRQ   (2)
 #define RESET (3)  // Not connected by default on the NFC Shield
 
 int incomingByte = 0;
 const int LED = 8;
+boolean cardSeenBefore = false;
 
 Adafruit_NFCShield_I2C nfc(IRQ, RESET);
 
@@ -78,12 +78,17 @@ void setup(void) {
     Serial.print("Didn't find PN53x board, please try again.");
     while (1); // halt
   }
+  
+  // Set the max number of retry attempts to read from a card
+  // This prevents us from waiting forever for a card, which is
+  // the default behaviour of the PN532.
+  nfc.setPassiveActivationRetries(0xFF);
 
   // configure board to read RFID tags
   nfc.SAMConfig();
 
   //Serial.println("Waiting for an ISO14443A Card ...");
-  Serial.println("< ready Tomatino is ready for pair tomato!");
+  Serial.println("< ready for pair tomato");
 }
 
 void loop(void) {
@@ -95,14 +100,39 @@ void loop(void) {
   // 'uid' will be populated with the UID, and uidLength will indicate
   // if the uid is 4 bytes (Mifare Classic) or 7 bytes (Mifare Ultralight)
   success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
+  
+//  Serial.print('debug');
+//  Serial.print(success);
+//  Serial.println(cardSeenBefore);
 
-  if (success) {
+  if (success && !cardSeenBefore) {
     // Display some basic information about the card
+    
+    // ok this is not what I want. I want to call a function and pass the card ID. Suggestions?
     Serial.print("< rfid_detected ");
     nfc.PrintHex(uid, uidLength);
-//    Serial.println("");
+    Serial.println("");
+    
+    // remember that we just read card and sent a message
+    cardSeenBefore = true;
+    
     delay(1000); //wait a bit before trying to read again.
+  } else if (success && cardSeenBefore) {
+    // read card succesfully but already sent message
+    // nothing to do just sight tight and look good
+  } else if (!success && cardSeenBefore) {
+    // no card read, but saw one in last cycle --> card was removed
+    tomato.abort_tomato();
+   
+    // card removed so adjust
+    cardSeenBefore = false;
+    
+    delay(1000); //wait a bit before trying to read again.
+  } else if (!success && !cardSeenBefore) {
+    // nothing to do just sight tight and look good
   }
+  
+//  Serial.println(success);
 
   if (Serial.available() > 0) {
     incomingByte = Serial.read();

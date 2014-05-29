@@ -9,11 +9,10 @@ class Tomato {
 
         void signal_ready(void);
 
-        void present(void);
+        void present(String);
         void absent(void);
-        void choose_ROCK(void);
-        void choose_PAPER(void);
-        void choose_SCISSORS(void);
+        void abort_tomato(void);
+       
 
         void check_input_from_serial(void);
 
@@ -35,7 +34,7 @@ class Tomato {
 // POSSIBLE EVENTS
 void when_you_are_present(void);
 void when_you_are_absent(void);
-void when_opponent_is_present(String opponentName);
+void when_partner_is_present(String opponentName);
 void when_opponent_is_absent(String opponentName);
 void when_you_choose_weapon(Tomato::WEAPON weapon);
 void when_opponent_chooses_weapon(Tomato::WEAPON weapon);
