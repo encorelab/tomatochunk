@@ -82,7 +82,7 @@ void setup(void) {
   // Set the max number of retry attempts to read from a card
   // This prevents us from waiting forever for a card, which is
   // the default behaviour of the PN532.
-  nfc.setPassiveActivationRetries(0xFF);
+  nfc.setPassiveActivationRetries(1);
 
   // configure board to read RFID tags
   nfc.SAMConfig();
@@ -111,15 +111,11 @@ void loop(void) {
     // ok this is not what I want. I want to call a function and pass the card ID. Suggestions?
     Serial.print("< rfid_detected ");
     nfc.PrintHex(uid, uidLength);
-    Serial.println("");
     
     // remember that we just read card and sent a message
     cardSeenBefore = true;
     
     delay(1000); //wait a bit before trying to read again.
-  } else if (success && cardSeenBefore) {
-    // read card succesfully but already sent message
-    // nothing to do just sight tight and look good
   } else if (!success && cardSeenBefore) {
     // no card read, but saw one in last cycle --> card was removed
     tomato.abort_tomato();
@@ -128,22 +124,8 @@ void loop(void) {
     cardSeenBefore = false;
     
     delay(1000); //wait a bit before trying to read again.
-  } else if (!success && !cardSeenBefore) {
+  } else {
     // nothing to do just sight tight and look good
-  }
-  
-//  Serial.println(success);
-
-  if (Serial.available() > 0) {
-    incomingByte = Serial.read();
-
-    // say what you got:
-    //Serial.println(incomingByte, DEC);
-
-    /* Do action corresponding to signals */
-    digitalWrite(LED, HIGH);
-    delay(2000);
-    digitalWrite(LED, LOW);
   }
 }
 
