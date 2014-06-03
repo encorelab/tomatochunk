@@ -79,9 +79,12 @@ void setup(void) {
     while (1); // halt
   }
   
+  // See here: https://learn.adafruit.com/adafruit-pn532-rfid-nfc/faq
   // Set the max number of retry attempts to read from a card
   // This prevents us from waiting forever for a card, which is
   // the default behaviour of the PN532.
+  // This get's rid of the blocking behaviour if set to the correct value
+  // http://forums.adafruit.com/viewtopic.php?f=31&t=30943
   nfc.setPassiveActivationRetries(1);
 
   // configure board to read RFID tags
